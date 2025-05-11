@@ -1,0 +1,212 @@
+/* Professional History Panel Styling */
+.history-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100%;
+  background-color: #ffffff;
+  width: 20rem;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  padding: 1rem;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.history-panel.closed {
+  transform: translateX(100%);
+}
+
+.history-panel.dark {
+  background-color: #121212;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.history-panel.dark .history-header {
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.history-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  color: #121212;
+  letter-spacing: 0.01em;
+}
+
+.history-panel.dark .history-title {
+  color: #ffffff;
+}
+
+.history-icon {
+  margin-right: 0.5rem;
+  color: #000000;
+}
+
+.history-panel.dark .history-icon {
+  color: #e0e0e0;
+}
+
+.close-button {
+  padding: 0.25rem;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.close-button.dark:hover {
+  background-color: #2a2a2a;
+}
+
+.close-button svg {
+  color: #000000;
+}
+
+.history-panel.dark .close-button svg {
+  color: #ffffff;
+}
+
+.history-list {
+  border-top: 1px solid #e5e7eb;
+  list-style: none;
+  padding: 0px;
+  gap: 0.5rem;
+}
+
+.history-panel.dark .history-list {
+  border-top: 1px solid #2a2a2a;
+}
+
+.history-item {
+ margin-top: 10px;
+  padding: 0.5rem 0;
+ background: #f5f5f5;
+  transition: background-color 0.2s ease;
+  border-radius: 10px;
+}
+
+.history-item:hover {
+  background-color: #ebe8e8;
+}
+
+.history-panel.dark .history-item {
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.history-panel.dark .history-item:hover {
+  background-color: #1a1a1a;
+}
+
+.history-button2 {
+  text-align: left;
+  width: 100%;
+  padding-left: 15px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  display: block;
+  color: #121212;
+  transition: color 0.2s ease;
+}
+
+.history-button2:hover {
+  color: #000000;
+}
+
+.history-panel.dark .history-button2 {
+  color: #e0e0e0;
+}
+
+.history-panel.dark .history-button2:hover {
+  color: #ffffff;
+}
+
+.history-term {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-timestamp {
+  font-size: 0.75rem;
+  color: #6b7280;
+  display: block;
+}
+
+.history-panel.dark .history-timestamp {
+  color: #9ca3af;
+}
+
+.no-history {
+  color: #6b7280;
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+.history-panel.dark .no-history {
+  color: #9ca3af;
+}
+
+/* Scrollbar styling */
+.history-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.history-panel::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.history-panel.dark::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Animation for panel */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.history-panel:not(.closed) {
+  animation: slideIn 0.3s ease forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .history-panel {
+    width: 100%;
+  }
+}
