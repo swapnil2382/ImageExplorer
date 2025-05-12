@@ -21,7 +21,7 @@ const redisClient = Redis.createClient({
   port: 6379, // Default Redis port
 });
 
-const RedisStore = connectRedis(session);  // Create the RedisStore instance
+const RedisStore = connectRedis(session);  // Create the RedisStore class instance
 
 app.use(session({
   store: new RedisStore({ client: redisClient }),  // Use Redis to store sessions
