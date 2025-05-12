@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
-const Redis = require('redis');
-const RedisStore = require('connect-redis')(session);  // Correct import and initialization
+const { createClient } = require('redis');
+const RedisStore = require('connect-redis').default;
 require('dotenv').config();
 require('./passport');  // passport strategies
 
@@ -15,22 +15,34 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
-// Redis client configuration
-const redisClient = Redis.createClient({
-  host: process.env.REDIS_HOST || 'localhost', // Use environment variable or default
-  port: process.env.REDIS_PORT || 6379, // Use environment variable or default port
+// Redis client configuration for v4+
+const redisClient = createClient({
+  url: process.env.REDIS_URL || 'redis://localhost:6379'
 });
 
-// Handle Redis connection errors
+// Handle Redis connection events
 redisClient.on('error', (err) => {
   console.error('Redis Client Error', err);
 });
 
-// Connect Redis client
-redisClient.connect().catch(console.error);
+// Create Redis store
+const redisStore = new RedisStore({
+  client: redisClient,
+  prefix: 'myapp:session:'
+});
+
+// Connect Redis client before setting up session
+(async () => {
+  try {
+    await redisClient.connect();
+    console.log('✅ Connected to Redis');
+  } catch (err) {
+    console.error('❌ Failed to connect to Redis:', err);
+  }
+})();
 
 app.use(session({
-  store: new RedisStore({ client: redisClient }),
+  store: redisStore,
   secret: process.env.SESSION_SECRET || 'your_secret_key',
   resave: false,
   saveUninitialized: false,
@@ -62,3 +74,15 @@ mongoose.connect(process.env.MONGO_URI, {
     console.error('❌ Failed to connect to MongoDB:', err.message);
     process.exit(1);
   });
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  try {
+    await redisClient.quit();
+    console.log('Redis client disconnected');
+    process.exit(0);
+  } catch (err) {
+    console.error('Error shutting down Redis client', err);
+    process.exit(1);
+  }
+});
