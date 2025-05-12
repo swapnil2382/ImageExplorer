@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
-const RedisStore = require('connect-redis')(session);  // Add Redis session store
-const redis = require('redis');  // Redis client
+const Redis = require('redis'); // Import Redis client
+const connectRedis = require('connect-redis');  // Import connect-redis
 require('dotenv').config();
 require('./passport');  // passport strategies
 
@@ -16,10 +16,12 @@ app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 // ✅ Redis session store configuration
-const redisClient = redis.createClient({
+const redisClient = Redis.createClient({
   host: 'localhost', // Update with your Redis server details (or managed service)
   port: 6379, // Default Redis port
 });
+
+const RedisStore = connectRedis(session);  // Create the RedisStore instance
 
 app.use(session({
   store: new RedisStore({ client: redisClient }),  // Use Redis to store sessions
