@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
-const redis = require('redis');
-const connectRedis = require('connect-redis');
+const Redis = require('redis');
+const RedisStore = require('connect-redis').default; // Import the default export
 require('dotenv').config();
-require('./passport');  // passport strategies
+require('./passport'); // passport strategies
 
 const authRoutes = require('./routes/auth');
 const searchRoutes = require('./routes/search');
@@ -15,44 +15,27 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
-// Redis client configuration
-const redisClient = redis.createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
+// ✅ Redis session store configuration
+const redisClient = Redis.createClient({
+  url: process.env.REDIS_URL || 'redis://localhost:6379', // Use Redis URL or fallback to localhost
 });
 
-// Handle Redis connection events
-redisClient.on('error', (err) => {
-  console.error('Redis Client Error', err);
+redisClient.connect().catch((err) => {
+  console.error('❌ Failed to connect to Redis:', err.message);
 });
 
-// Create Redis store
-const RedisStore = connectRedis(session);
-const redisStore = new RedisStore({
-  client: redisClient,
-  prefix: 'myapp:session:'
-});
-
-// Connect Redis client before setting up session
-(async () => {
-  try {
-    await redisClient.connect();
-    console.log('✅ Connected to Redis');
-  } catch (err) {
-    console.error('❌ Failed to connect to Redis:', err);
-  }
-})();
-
-app.use(session({
-  store: redisStore,
-  secret: process.env.SESSION_SECRET || 'your_secret_key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 // 24 hours
-  }
-}));
+// Configure session with RedisStore
+app.use(
+  session({
+    store: new RedisStore({
+      client: redisClient, // Pass the Redis client
+    }),
+    secret: process.env.SESSION_SECRET || 'your_secret_key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === 'production' },
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -62,10 +45,11 @@ app.use('/api', searchRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     app.listen(PORT, () => {
       console.log(`✅ Server is running on port ${PORT}`);
@@ -75,15 +59,3 @@ mongoose.connect(process.env.MONGO_URI, {
     console.error('❌ Failed to connect to MongoDB:', err.message);
     process.exit(1);
   });
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  try {
-    await redisClient.quit();
-    console.log('Redis client disconnected');
-    process.exit(0);
-  } catch (err) {
-    console.error('Error shutting down Redis client', err);
-    process.exit(1);
-  }
-});
