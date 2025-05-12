@@ -8,10 +8,11 @@ const Navbar = ({ user, showHistory, setShowHistory }) => {
 
  const handleLogout = async () => {
   try {
-    await fetch('https://imageexplorer-2.onrender.com/auth/logout', {
-      method: 'GET',
-      credentials: 'include',
-    });
+    await fetch(`${process.env.REACT_APP_API_URL}/auth/logout`, {
+  method: 'GET',
+  credentials: 'include',
+});
+
     navigate('/', { replace: true }); // Go to first page
   } catch (error) {
     console.error('Logout failed', error);
@@ -51,12 +52,13 @@ const Navbar = ({ user, showHistory, setShowHistory }) => {
             </button>
           </div>
         ) : (
-          <a 
-            href="https://imageexplorer-2.onrender.com/auth/google"
-            className="login-button"
-          >
-            Login with Google
-          </a>
+         <a 
+  href={`${process.env.REACT_APP_API_URL}/auth/google`}
+  className="login-button"
+>
+  Login with Google
+</a>
+
         )}
       </div>
     </nav>

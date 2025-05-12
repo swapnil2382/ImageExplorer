@@ -17,10 +17,9 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch user data
-    axios.get('https://imageexplorer-2.onrender.com/auth/user', { withCredentials: true })
-      .then(res => setUser(res.data))
-      .catch(() => setUser(null));
+    axios.get(`${process.env.REACT_APP_API_URL}/auth/user`, { withCredentials: true })
+      .then(res => setUser(res.data))  // Successfully get user data from backend
+      .catch(() => setUser(null));  // On failure, set user to null
   }, []);
 
   const handleSearch = async (term) => {
@@ -28,10 +27,11 @@ function App() {
     setSearchTerm(term);
     setIsLoading(true);
     try {
-      const response = await axios.post('https://imageexplorer-2.onrender.com/api/search', 
-        { term },
-        { withCredentials: true }
-      );
+     const response = await axios.post(
+  `${process.env.REACT_APP_API_URL}/api/search`,
+  { term },
+  { withCredentials: true }
+);
       setImages(response.data);
       setSelectedImages([]);
     } catch (err) {
@@ -56,11 +56,11 @@ function App() {
     <div className="app-container">
       <Navbar user={user} showHistory={showHistory} setShowHistory={setShowHistory} />
       <TopSearchesBanner handleSearch={handleSearch} />
-      
+
       {user ? (
         <>
           <SearchBar handleSearch={handleSearch} />
-          
+
           {(searchTerm || selectedImages.length > 0) && (
             <div className="results-bar">
               {searchTerm && (
@@ -84,7 +84,7 @@ function App() {
               )}
             </div>
           )}
-          
+
           {isLoading ? (
             <div className="loading-container">
               <div className="loading-spinner"></div>
@@ -108,7 +108,7 @@ function App() {
               </div>
             )
           )}
-          
+
           <History showHistory={showHistory} setShowHistory={setShowHistory} handleSearch={handleSearch} />
         </>
       ) : (
@@ -120,13 +120,13 @@ function App() {
               Discover and collect beautiful images from around the web.
               Please log in to start your visual journey.
             </p>
-            <a 
-              href="https://imageexplorer-2.onrender.com/auth/google"
-              className="login-button"
-            >
-              <User size={18} className="login-icon" />
-              Login with Google
-            </a>
+          <a 
+  href={`${process.env.REACT_APP_API_URL}/auth/google`}
+  className="login-button"
+>
+  <User size={18} className="login-icon" />
+  Login with Google
+</a>
           </div>
         </div>
       )}
