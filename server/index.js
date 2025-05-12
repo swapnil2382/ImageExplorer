@@ -2,9 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
-const session = require('express-session');
-const Redis = require('redis');
-const RedisStore = require('connect-redis').default; // Import the default export
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 require('./passport'); // passport strategies
 
@@ -15,33 +13,26 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
-// ✅ Redis session store configuration
-const redisClient = Redis.createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379', // Use Redis URL or fallback to localhost
-});
+// JWT Middleware for protected routes
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1]; // Expect 'Bearer <token>'
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
 
-redisClient.connect().catch((err) => {
-  console.error('❌ Failed to connect to Redis:', err.message);
-});
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
+    req.user = decoded; // Attach decoded user info to request
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+};
 
-// Configure session with RedisStore
-app.use(
-  session({
-    store: new RedisStore({
-      client: redisClient, // Pass the Redis client
-    }),
-    secret: process.env.SESSION_SECRET || 'your_secret_key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production' },
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
+// Routes
 app.use('/auth', authRoutes);
-app.use('/api', searchRoutes);
+// Protect search routes with JWT verification
+app.use('/api', verifyToken, searchRoutes);
 
 const PORT = process.env.PORT || 5000;
 

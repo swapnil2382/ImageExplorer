@@ -7,8 +7,17 @@ const History = ({ showHistory, setShowHistory, handleSearch }) => {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-axios.get(`${process.env.REACT_APP_API_URL}/api/history`, { withCredentials: true })
-      .then(res => setHistory(res.data))
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setHistory([]);
+      return;
+    }
+
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/api/history`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setHistory(res.data))
       .catch(() => setHistory([]));
   }, []);
 
@@ -19,7 +28,7 @@ axios.get(`${process.env.REACT_APP_API_URL}/api/history`, { withCredentials: tru
           <Clock size={18} className="history-icon" />
           Search History
         </h3>
-        <button 
+        <button
           onClick={() => setShowHistory(false)}
           className="close-button"
         >
@@ -30,7 +39,7 @@ axios.get(`${process.env.REACT_APP_API_URL}/api/history`, { withCredentials: tru
         <ul className="history-list">
           {history.map((h, index) => (
             <li key={index} className="history-item">
-              <button 
+              <button
                 onClick={() => {
                   handleSearch(h.term);
                   setShowHistory(false);

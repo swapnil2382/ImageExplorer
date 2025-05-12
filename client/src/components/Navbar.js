@@ -6,19 +6,15 @@ import './Navbar.css';
 const Navbar = ({ user, showHistory, setShowHistory }) => {
   const navigate = useNavigate();
 
- const handleLogout = async () => {
-  try {
-    await fetch(`${process.env.REACT_APP_API_URL}/auth/logout`, {
-  method: 'GET',
-  credentials: 'include',
-});
-
-    navigate('/', { replace: true }); // Go to first page
-  } catch (error) {
-    console.error('Logout failed', error);
-  }
-};
-
+  const handleLogout = async () => {
+    try {
+      await fetch(`${process.env.REACT_APP_API_URL}/auth/logout`);
+      localStorage.removeItem('token');
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -30,7 +26,7 @@ const Navbar = ({ user, showHistory, setShowHistory }) => {
 
         {user ? (
           <div className="navbar-user">
-            <button 
+            <button
               onClick={() => setShowHistory(!showHistory)}
               className="history-button"
             >
@@ -43,7 +39,7 @@ const Navbar = ({ user, showHistory, setShowHistory }) => {
               <span>{user.name}</span>
             </div>
 
-            <button 
+            <button
               onClick={handleLogout}
               className="logout-button"
             >
@@ -52,13 +48,12 @@ const Navbar = ({ user, showHistory, setShowHistory }) => {
             </button>
           </div>
         ) : (
-         <a 
-  href={`${process.env.REACT_APP_API_URL}/auth/google`}
-  className="login-button"
->
-  Login with Google
-</a>
-
+          <a
+            href={`${process.env.REACT_APP_API_URL}/auth/google`}
+            className="login-button"
+          >
+            Login with Google
+          </a>
         )}
       </div>
     </nav>
