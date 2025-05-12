@@ -4,7 +4,7 @@ const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
 const Redis = require('redis');
-const connectRedis = require('connect-redis');  // Import connect-redis
+const RedisStore = require('connect-redis')(session);  // Correct import and initialization
 require('dotenv').config();
 require('./passport');  // passport strategies
 
@@ -15,22 +15,30 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
-// ✅ Redis session store configuration
+// Redis client configuration
 const redisClient = Redis.createClient({
-  host: 'localhost', // Use your Redis host
-  port: 6379, // Default Redis port
+  host: process.env.REDIS_HOST || 'localhost', // Use environment variable or default
+  port: process.env.REDIS_PORT || 6379, // Use environment variable or default port
 });
 
-const RedisStore = connectRedis(session);  // Get RedisStore constructor from connect-redis
+// Handle Redis connection errors
+redisClient.on('error', (err) => {
+  console.error('Redis Client Error', err);
+});
+
+// Connect Redis client
+redisClient.connect().catch(console.error);
 
 app.use(session({
-  store: new RedisStore({
-    client: redisClient,  // Use the Redis client
-  }),
-  secret: process.env.SESSION_SECRET || 'your_secret_key',  // Make sure to use environment variables
+  store: new RedisStore({ client: redisClient }),
+  secret: process.env.SESSION_SECRET || 'your_secret_key',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' },  // Secure cookies for production
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 // 24 hours
+  }
 }));
 
 app.use(passport.initialize());
