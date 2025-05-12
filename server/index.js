@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
-const Redis = require('redis'); // Import Redis client
+const Redis = require('redis');
 const connectRedis = require('connect-redis');  // Import connect-redis
 require('dotenv').config();
 require('./passport');  // passport strategies
@@ -17,18 +17,20 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 // ✅ Redis session store configuration
 const redisClient = Redis.createClient({
-  host: 'localhost', // Update with your Redis server details (or managed service)
+  host: 'localhost', // Use your Redis host
   port: 6379, // Default Redis port
 });
 
-const RedisStore = connectRedis(session);  // Create the RedisStore class instance
+const RedisStore = connectRedis(session);  // Get RedisStore constructor from connect-redis
 
 app.use(session({
-  store: new RedisStore({ client: redisClient }),  // Use Redis to store sessions
-  secret: process.env.SESSION_SECRET || 'your_secret_key',  // Use environment variable for security
+  store: new RedisStore({
+    client: redisClient,  // Use the Redis client
+  }),
+  secret: process.env.SESSION_SECRET || 'your_secret_key',  // Make sure to use environment variables
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' },  // Set secure cookies in production
+  cookie: { secure: process.env.NODE_ENV === 'production' },  // Secure cookies for production
 }));
 
 app.use(passport.initialize());
@@ -39,9 +41,8 @@ app.use('/api', searchRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-// Updated MongoDB connection without deprecated options
 mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,  // Remove deprecated options
+  useNewUrlParser: true,
   useUnifiedTopology: true,
 })
   .then(() => {
@@ -51,5 +52,5 @@ mongoose.connect(process.env.MONGO_URI, {
   })
   .catch((err) => {
     console.error('❌ Failed to connect to MongoDB:', err.message);
-    process.exit(1); // Exit if connection fails
+    process.exit(1);
   });
