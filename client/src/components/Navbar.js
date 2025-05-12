@@ -8,7 +8,7 @@ const Navbar = ({ user, showHistory, setShowHistory }) => {
 
  const handleLogout = async () => {
   try {
-    await fetch('http://localhost:5000/auth/logout', {
+    await fetch('https://imageexplorer-2.onrender.com/auth/logout', {
       method: 'GET',
       credentials: 'include',
     });
@@ -52,7 +52,7 @@ const Navbar = ({ user, showHistory, setShowHistory }) => {
           </div>
         ) : (
           <a 
-            href="http://localhost:5000/auth/google"
+            href="https://imageexplorer-2.onrender.com/auth/google"
             className="login-button"
           >
             Login with Google

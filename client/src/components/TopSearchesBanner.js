@@ -6,7 +6,7 @@ const TopSearchesBanner = ({ handleSearch }) => {
   const [top, setTop] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/top-searches', { withCredentials: true })
+    axios.get('https://imageexplorer-2.onrender.com/api/top-searches', { withCredentials: true })
       .then(res => setTop(res.data))
       .catch(err => {
         console.error('Failed to fetch top searches:', err);

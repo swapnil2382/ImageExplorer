@@ -18,7 +18,7 @@ function App() {
 
   useEffect(() => {
     // Fetch user data
-    axios.get('http://localhost:5000/auth/user', { withCredentials: true })
+    axios.get('https://imageexplorer-2.onrender.com/auth/user', { withCredentials: true })
       .then(res => setUser(res.data))
       .catch(() => setUser(null));
   }, []);
@@ -28,7 +28,7 @@ function App() {
     setSearchTerm(term);
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/search', 
+      const response = await axios.post('https://imageexplorer-2.onrender.com/api/search', 
         { term },
         { withCredentials: true }
       );
@@ -121,7 +121,7 @@ function App() {
               Please log in to start your visual journey.
             </p>
             <a 
-              href="http://localhost:5000/auth/google"
+              href="https://imageexplorer-2.onrender.com/auth/google"
               className="login-button"
             >
               <User size={18} className="login-icon" />

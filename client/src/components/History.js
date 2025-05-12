@@ -7,7 +7,7 @@ const History = ({ showHistory, setShowHistory, handleSearch }) => {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/history', { withCredentials: true })
+    axios.get('https://imageexplorer-2.onrender.com/api/history', { withCredentials: true })
       .then(res => setHistory(res.data))
       .catch(() => setHistory([]));
   }, []);
