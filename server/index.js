@@ -11,7 +11,7 @@ const searchRoutes = require('./routes/search');
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: 'https://image-explorer-tau.vercel.app/', credentials: true }));
+app.use(cors({ origin: 'https://image-explorer-tau.vercel.app', credentials: true }));
 
 // JWT Middleware for protected routes
 const verifyToken = (req, res, next) => {

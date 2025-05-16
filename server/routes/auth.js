@@ -3,7 +3,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User'); // Adjust path to your User model
 
-const CLIENT_HOME_URL = process.env.CLIENT_HOME_URL || 'https://image-explorer-tau.vercel.app/';
+const CLIENT_HOME_URL = process.env.CLIENT_HOME_URL || 'https://image-explorer-tau.vercel.app';
 
 // Start Google OAuth flow
 router.get('/google', passport.authenticate('google', { scope: ['profile'], session: false }));
